@@ -246,4 +246,14 @@ if not df_screened.empty:
     df_selected["Weight"] = target_weight
     
     # Format percentages for table
-    display_
+    display_table = df_selected[["Ticker", "Family", "Weight", "Price", "52w_High", "Discount_52w", "Return_21d", "Alpha_21d"]].copy()
+    display_table["Discount_52w"] = display_table["Discount_52w"].map("{:.2%}".format)
+    display_table["Return_21d"] = display_table["Return_21d"].map("{:.2%}".format)
+    display_table["Alpha_21d"] = display_table["Alpha_21d"].map("{:.2%}".format)
+    
+    st.dataframe(display_table.reset_index(drop=True), use_container_width=True)
+else:
+    st.warning(f"No sector ETFs cleared filters. 100% of allocation directed to {regime.sweep_asset}.")
+
+# Footer Metadata
+st.caption(f"Data window: {df_prices.index[0].strftime('%Y-%m-%d')} to {df_prices.index[-1].strftime('%Y-%m-%d')} | Rebalanced dynamically with 1-hour cache.")
