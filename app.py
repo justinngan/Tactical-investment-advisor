@@ -241,18 +241,17 @@ st.subheader("Tactical Allocations")
 if not df_screened.empty:
     selected = select_positions(df_screened, cfg, eligible_universe=regime.eligible_universe)
     df_selected = df_screened[df_screened["Ticker"].isin(selected)].copy()
-
-# Momentum (Alpha) proportional weighting
-total_alpha = df_selected["Alpha_21d"].sum()
-if total_alpha > 0:
-    raw_weights = df_selected["Alpha_21d"] / total_alpha
-    # Cap at max_single_weight and normalize
-    clipped_weights = raw_weights.clip(upper=cfg.max_single_weight)
-    final_weights = clipped_weights / clipped_weights.sum()
-    df_selected["Weight"] = final_weights.map("{:.1%}".format)
-else:
-    df_selected["Weight"] = f"{(1.0 / len(selected)):.1%}"
     
+    # Momentum (Alpha) proportional weighting
+    total_alpha = df_selected["Alpha_21d"].sum()
+    if total_alpha > 0:
+        raw_weights = df_selected["Alpha_21d"] / total_alpha
+        clipped_weights = raw_weights.clip(upper=cfg.max_single_weight)
+        final_weights = clipped_weights / clipped_weights.sum()
+        df_selected["Weight"] = final_weights.map("{:.1%}".format)
+    else:
+        df_selected["Weight"] = f"{(1.0 / len(selected)):.1%}"
+
     # Format percentages for table
     display_table = df_selected[["Ticker", "Family", "Weight", "Price", "52w_High", "Discount_52w", "Return_21d", "Alpha_21d"]].copy()
     display_table["Discount_52w"] = display_table["Discount_52w"].map("{:.2%}".format)
